@@ -1,19 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { useStatistics } from './useStatistics'
+import { Chart } from './Chart'
 
 function App() {
   const [count, setCount] = useState(0)
 
-  useEffect(() => {
-    window.electron.subscribeStatistics(stats => console.log(stats))
-  }, [])
+  const statistics = useStatistics(10)
 
+  const cpuUsages = useMemo(() => statistics.map(stat => stat.cupUsage), [statistics])
+
+  useEffect(() => {
+    alert(2)
+    // window.electron.subscribeChangeView((view) => console.log(view))
+  }, [])
 
   return (
     <>
       <div>
+        <div style={{"height": 120}}>
+          <Chart maxDataPoints={10} data={cpuUsages}></Chart>
+        </div>
+        
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
@@ -21,7 +31,7 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Vite + React 333</h1>
+      <h1>Vite + React </h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
