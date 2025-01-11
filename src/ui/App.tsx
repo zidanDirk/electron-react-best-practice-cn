@@ -7,21 +7,38 @@ import { Chart } from './Chart'
 
 function App() {
   const [count, setCount] = useState(0)
-
   const statistics = useStatistics(10)
+  const [activeView, setActiveView] = useState<View>("CPU")
 
   const cpuUsages = useMemo(() => statistics.map(stat => stat.cupUsage), [statistics])
+  const ramUsages = useMemo(() => statistics.map(stat => stat.ramUsage), [statistics])
+  const storageUsages = useMemo(() => statistics.map(stat => stat.storageData), [statistics])
+
+  const activeUsages = useMemo(() => {
+    switch(activeView) {
+      case "CPU":
+        return cpuUsages;
+      case "RAM":
+        return ramUsages;
+      case "STROAGE":
+        return storageUsages;
+    }
+  }, [activeView, cpuUsages, ramUsages, storageUsages])
 
   useEffect(() => {
-    alert(2)
-    // window.electron.subscribeChangeView((view) => console.log(view))
+    return window.electron.subscribeChangeView((view) => setActiveView(view));
   }, [])
 
   return (
     <>
-      <div>
+      <div className='App'>
+        <header>
+          <button id='close' onClick={() => window.electron.sendFrameAction("CLOSE")}></button>
+          <button id='minimize' onClick={() => window.electron.sendFrameAction("MINIMIZE")}></button>
+          <button id='maxmize' onClick={() => window.electron.sendFrameAction("MAXMIZE")}></button>
+        </header>
         <div style={{"height": 120}}>
-          <Chart maxDataPoints={10} data={cpuUsages}></Chart>
+          <Chart maxDataPoints={10} data={activeUsages}></Chart>
         </div>
         
         <a href="https://vite.dev" target="_blank">
